@@ -1,0 +1,132 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CityMind</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="bg-white text-gray-800 flex flex-col min-h-screen font-sans">
+    <!-- Header -->
+    <header class="bg-gray-50 border-b border-gray-200 shadow-sm">
+      <nav
+        class="container mx-auto flex justify-between items-center py-6 px-4"
+      >
+        <!-- Logo + Marca -->
+        <a href="/" class="flex items-center space-x-3">
+          <img
+            src="{% static 'images/logo.png' %}"
+            alt="CityMind Logo"
+            class="h-10 w-auto"
+          />
+          <span class="text-3xl font-extrabold tracking-wide text-emerald-600"
+            >CityMind</span
+          >
+        </a>
+
+        <!-- Botón menú móvil -->
+        <button
+          id="menu-btn"
+          class="md:hidden text-emerald-600 focus:outline-none text-3xl"
+        >
+          ☰
+        </button>
+
+        <!-- Menú -->
+        <ul id="menu" class="hidden md:flex space-x-8 text-lg font-medium">
+          <li>
+            <a
+              href="/"
+              class="text-emerald-600 hover:text-emerald-700 transition"
+              >Home</a
+            >
+          </li>
+          <li>
+            <a
+              href="/dashboard/"
+              class="text-emerald-600 hover:text-emerald-700 transition"
+              >Dashboard</a
+            >
+          </li>
+          <li>
+            <a
+              href="/predict/"
+              class="text-emerald-600 hover:text-emerald-700 transition"
+              >Predict</a
+            >
+          </li>
+          <li>
+            <a
+              href="/about/"
+              class="text-emerald-600 hover:text-emerald-700 transition"
+              >About</a
+            >
+          </li>
+        </ul>
+      </nav>
+
+      <!-- Menú móvil desplegable -->
+      <div
+        id="mobile-menu"
+        class="hidden md:hidden bg-gray-50 border-t border-gray-200"
+      >
+        <ul class="flex flex-col space-y-4 p-4 text-lg font-medium">
+          <li>
+            <a
+              href="/"
+              class="text-emerald-600 hover:text-emerald-700 transition"
+              >Home</a
+            >
+          </li>
+          <li>
+            <a
+              href="/dashboard/"
+              class="text-emerald-600 hover:text-emerald-700 transition"
+              >Dashboard</a
+            >
+          </li>
+          <li>
+            <a
+              href="/predict/"
+              class="text-emerald-600 hover:text-emerald-700 transition"
+              >Predict</a
+            >
+          </li>
+          <li>
+            <a
+              href="/about/"
+              class="text-emerald-600 hover:text-emerald-700 transition"
+              >About</a
+            >
+          </li>
+        </ul>
+      </div>
+    </header>
+
+    <!-- Contenido dinámico -->
+    <main class="container mx-auto flex-grow p-6">
+      {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-100 text-gray-600 border-t border-gray-200">
+      <div class="container mx-auto text-center py-4">
+        <p>
+          &copy; 2025 CityMind –
+          <span class="text-emerald-600 font-medium">Data-driven insights</span>
+        </p>
+      </div>
+    </footer>
+
+    <!-- Script para menú móvil -->
+    <script>
+      const btn = document.getElementById("menu-btn");
+      const mobileMenu = document.getElementById("mobile-menu");
+
+      btn.addEventListener("click", () => {
+        mobileMenu.classList.toggle("hidden");
+      });
+    </script>
+  </body>
+</html>

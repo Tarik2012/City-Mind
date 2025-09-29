@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Entornos
+env/
+venv/
+.env
+
+# Datos grandes
+data/raw/
+data/*.csv
+!data/wrangling_summary.csv   # excepción para el resumen
+!data/features_comparison.csv
+
+# DVC y MLflow (los mantendremos controlados aparte)
+.dvc/
+mlruns/

@@ -1,0 +1,27 @@
+{% extends "core/base.html" %} {% block content %}
+<div class="text-center space-y-6">
+  <!-- Hero section -->
+  <h1 class="text-4xl font-bold text-indigo-700">Welcome to CityMind</h1>
+  <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+    CityMind is a data-driven project that predicts the prevalence of depression
+    in cities and counties, based on socioeconomic, environmental, and health
+    factors.
+  </p>
+
+  <!-- Action buttons -->
+  <div class="flex justify-center space-x-4">
+    <a
+      href="/dashboard/"
+      class="px-6 py-3 bg-indigo-600 text-white rounded-lg shadow hover:bg-indigo-700"
+    >
+      View Dashboard
+    </a>
+    <a
+      href="/predict/"
+      class="px-6 py-3 bg-gray-200 text-gray-800 rounded-lg shadow hover:bg-gray-300"
+    >
+      Make a Prediction
+    </a>
+  </div>
+</div>
+{% endblock %}
