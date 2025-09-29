@@ -1,21 +1,40 @@
+# ----------------------------
 # Python
+# ----------------------------
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
 .Python
 
-# Entornos
+# ----------------------------
+# Entornos virtuales
+# ----------------------------
 env/
 venv/
 .env
 
-# Datos grandes
+# ----------------------------
+# Django
+# ----------------------------
+db.sqlite3
+/media/
+staticfiles/
+*.log
+
+# ----------------------------
+# Datos
+# ----------------------------
 data/raw/
 data/*.csv
-!data/wrangling_summary.csv   # excepción para el resumen
+!data/wrangling_summary.csv
 !data/features_comparison.csv
+# Opcional: permitir también datasets limpios finales
+!data/places_no_social_clean.csv
+!data/places_imputed_full_clean.csv
 
-# DVC y MLflow (los mantendremos controlados aparte)
+# ----------------------------
+# DVC y MLflow
+# ----------------------------
 .dvc/
 mlruns/
