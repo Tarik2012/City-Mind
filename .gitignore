@@ -1,5 +1,10 @@
+# ======================================================
+# 🧠 CityMind - Git Ignore
+# Limpieza para proyecto de ciencia de datos / MLOps
+# ======================================================
+
 # ----------------------------
-# Python
+# 🐍 Python
 # ----------------------------
 __pycache__/
 *.pyc
@@ -8,33 +13,53 @@ __pycache__/
 .Python
 
 # ----------------------------
-# Entornos virtuales
+# 🧩 Entornos virtuales
 # ----------------------------
 env/
 venv/
+.venv/
 .env
 
 # ----------------------------
-# Django
+# ⚙️ Configuración y logs
 # ----------------------------
-db.sqlite3
-/media/
-staticfiles/
 *.log
+*.tmp
+*.bak
 
 # ----------------------------
-# Datos
+# 📊 Datos
 # ----------------------------
 data/raw/
-data/*.csv
-!data/wrangling_summary.csv
-!data/features_comparison.csv
-# Opcional: permitir también datasets limpios finales
-!data/places_no_social_clean.csv
-!data/places_imputed_full_clean.csv
+data/interim/
+data/processed/
+data/external/
+data-old/
+
+# ✅ Permitimos solo los resúmenes limpios finales
+!data/processed/no_social/places_no_social_clean.csv
+!data/processed/full_social/places_imputed_full_clean.csv
+!data/processed/wrangling_summary.csv
 
 # ----------------------------
-# DVC y MLflow
+# 📁 Archivos de salida
+# ----------------------------
+reports/*.pdf
+reports/*.html
+reports/*.docx
+
+# ----------------------------
+# ⚗️ Experimentos y pipelines
 # ----------------------------
 .dvc/
 mlruns/
+.snakemake/
+archive/
+scripts-old/
+
+# ----------------------------
+# 🪟 Sistema
+# ----------------------------
+.DS_Store
+Thumbs.db
+pandoc-*.msi
