@@ -1,60 +1,73 @@
+"""
+tests/test_wrangling.py - Validaciones de limpieza de datos CityMind
+---------------------------------------------------------------------
+Verifica que los datasets limpios cumplan condiciones básicas:
+  ✅ Existen los archivos procesados
+  ✅ No hay valores nulos
+  ✅ Columnas clave presentes
+  ✅ Valores dentro de rangos válidos
+  ✅ Sin valores negativos en indicadores de salud
+"""
+
 import os
+import pytest
 import pandas as pd
 
-# ---------------------------
-# Configuración de rutas
-# ---------------------------
-BASE_DIR = os.path.dirname(os.path.dirname(__file__))  # sube desde /tests a la raíz
-DATA_DIR = os.path.join(BASE_DIR, "data")
 
-# Archivos que deberíamos haber generado en wrangling_final.ipynb
-FILES_EXPECTED = [
-    "places_no_social_clean.csv",
-    "places_imputed_clean.csv",
-    "places_imputed_full_clean.csv",
-]
+# ---------------------------------------------------------------
+# 1️⃣ Test: existencia de archivos
+# ---------------------------------------------------------------
+def test_files_exist(data_paths):
+    """Verifica que los archivos limpios existen en /data/processed"""
+    for name, path in data_paths.items():
+        assert path.exists(), f"❌ No existe el archivo esperado: {path}"
 
 
-# ---------------------------
-# Tests
-# ---------------------------
-
-def test_files_exist():
-    """Verifica que los archivos generados existen en /data"""
-    for fname in FILES_EXPECTED:
-        fpath = os.path.join(DATA_DIR, fname)
-        assert os.path.exists(fpath), f"El archivo {fname} no existe en {DATA_DIR}"
+# ---------------------------------------------------------------
+# 2️⃣ Test: no nulos en datasets limpios
+# ---------------------------------------------------------------
+def test_no_nulls_in_clean(no_social_df, full_social_df):
+    """Comprueba que los datasets *_clean.csv no tengan valores nulos"""
+    assert no_social_df.isna().sum().sum() == 0, "❌ Hay valores nulos en No Social"
+    assert full_social_df.isna().sum().sum() == 0, "❌ Hay valores nulos en Full Social"
 
 
-def test_no_nulls_in_clean():
-    """Comprueba que los datasets *_clean.csv no tengan nulos"""
-    for fname in ["places_no_social_clean.csv", "places_imputed_full_clean.csv"]:
-        fpath = os.path.join(DATA_DIR, fname)
-        df = pd.read_csv(fpath)
-        assert df.isna().sum().sum() == 0, f"Hay nulos en {fname}"
+# ---------------------------------------------------------------
+# 3️⃣ Test: rango de la variable de depresión
+# ---------------------------------------------------------------
+def test_depression_range(full_social_df):
+    """La columna depression_crudeprev debe existir y estar en rango 0–100"""
+    col = "depression_crudeprev"
+    assert col in full_social_df.columns, f"❌ Falta columna '{col}'"
+    assert full_social_df[col].between(0, 100).all(), "❌ Valores fuera de rango (0–100)"
 
 
-def test_depression_range():
-    """La columna depression debe existir y estar en rango 0-100"""
-    fpath = os.path.join(DATA_DIR, "places_imputed_full_clean.csv")
-    df = pd.read_csv(fpath)
-    assert "depression" in df.columns, "No existe columna 'depression'"
-    assert df["depression"].between(0, 100).all(), "Valores de depression fuera de rango"
-
-
-def test_columns_expected_no_social():
+# ---------------------------------------------------------------
+# 4️⃣ Test: columnas clave en No Social
+# ---------------------------------------------------------------
+def test_columns_expected_no_social(no_social_df):
     """El dataset No Social Clean debe tener las columnas clave"""
-    fpath = os.path.join(DATA_DIR, "places_no_social_clean.csv")
-    df = pd.read_csv(fpath)
-    expected_cols = ["stateabbr", "statedesc", "locationname", "locationid", "depression"]
+    expected_cols = [
+        "stateabbr",
+        "statedesc",
+        "countyname",
+        "countyfips",
+        "depression_crudeprev",
+    ]
     for col in expected_cols:
-        assert col in df.columns, f"Falta columna {col} en places_no_social_clean.csv"
+        assert col in no_social_df.columns, f"❌ Falta columna '{col}' en No Social"
 
 
-def test_positive_values_health():
-    """Algunas variables de salud deben ser no negativas"""
-    fpath = os.path.join(DATA_DIR, "places_imputed_full_clean.csv")
-    df = pd.read_csv(fpath)
-    cols_check = ["obesity", "physical_inactivity", "diabetes"]
+# ---------------------------------------------------------------
+# 5️⃣ Test: valores no negativos en indicadores de salud
+# ---------------------------------------------------------------
+def test_positive_values_health(full_social_df):
+    """Variables de salud deben ser no negativas"""
+    cols_check = [
+        "obesity_crudeprev",
+        "diabetes_crudeprev",
+        "lpa_crudeprev",  # physical inactivity (low physical activity)
+    ]
     for col in cols_check:
-        assert (df[col] >= 0).all(), f"Valores negativos encontrados en {col}"
+        assert col in full_social_df.columns, f"❌ Falta columna '{col}'"
+        assert (full_social_df[col] >= 0).all(), f"❌ Valores negativos detectados en {col}"
