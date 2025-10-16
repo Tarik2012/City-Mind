@@ -44,7 +44,7 @@ results = []
 
 for target in TARGETS:
     print(f"\n==============================")
-    print(f"🎯 Entrenando modelos (Full Social) para: {target}")
+    print(f" Entrenando modelos (Full Social) para: {target}")
     print("==============================")
 
     # Cargar dataset
@@ -66,11 +66,11 @@ for target in TARGETS:
     X_train_scaled = scaler.fit_transform(X_train)
     X_test_scaled = scaler.transform(X_test)
 
-    # --- 1️⃣ PCA (95% de varianza explicada)
+    # --- 1️ PCA (95% de varianza explicada)
     pca = PCA(n_components=0.95, random_state=42)
     X_train_pca = pca.fit_transform(X_train_scaled)
     X_test_pca = pca.transform(X_test_scaled)
-    print(f"✅ PCA → {pca.n_components_} componentes (95% varianza)")
+    print(f" PCA → {pca.n_components_} componentes (95% varianza)")
 
     # ==================================================
     # 🔹 Modelo 1: LassoCV
@@ -85,7 +85,7 @@ for target in TARGETS:
         "model": "LassoCV",
         **metrics_lasso
     })
-    print(f"✅ LassoCV → R²={metrics_lasso['r2']:.3f} | RMSE={metrics_lasso['rmse']:.3f}")
+    print(f" LassoCV → R²={metrics_lasso['r2']:.3f} | RMSE={metrics_lasso['rmse']:.3f}")
 
     # ==================================================
     # 🔹 Modelo 2: Random Forest
@@ -104,7 +104,7 @@ for target in TARGETS:
         "model": "RandomForest",
         **metrics_rf
     })
-    print(f"✅ RandomForest → R²={metrics_rf['r2']:.3f} | RMSE={metrics_rf['rmse']:.3f}")
+    print(f" RandomForest → R²={metrics_rf['r2']:.3f} | RMSE={metrics_rf['rmse']:.3f}")
 
     # Guardar importancias
     importances = pd.DataFrame({
@@ -113,7 +113,7 @@ for target in TARGETS:
     }).sort_values(by="importance", ascending=False)
     imp_path = OUT_DIR / f"rf_importances_{target}.csv"
     importances.to_csv(imp_path, index=False)
-    print(f"💾 Importancias RF guardadas en: {imp_path.name}")
+    print(f" Importancias RF guardadas en: {imp_path.name}")
 
     # ==================================================
     # 🔹 Modelo 3: XGBoost
@@ -136,9 +136,9 @@ for target in TARGETS:
         "model": "XGBoost",
         **metrics_xgb
     })
-    print(f"✅ XGBoost → R²={metrics_xgb['r2']:.3f} | RMSE={metrics_xgb['rmse']:.3f}")
+    print(f" XGBoost → R²={metrics_xgb['r2']:.3f} | RMSE={metrics_xgb['rmse']:.3f}")
 
-    print(f"✅ Modelos completados para {target}")
+    print(f" Modelos completados para {target}")
 
 # ======================================================
 # 4️⃣ Guardar métricas generales
@@ -147,7 +147,7 @@ metrics_df = pd.DataFrame(results)
 metrics_path = OUT_DIR / "model_metrics.csv"
 metrics_df.to_csv(metrics_path, index=False)
 
-print(f"\n📊 Resultados guardados en: {metrics_path.name}")
+print(f"\n Resultados guardados en: {metrics_path.name}")
 print(metrics_df)
 
-print("\n✅ Entrenamiento de modelos (Full Social) completado con éxito.")
+print("\n Entrenamiento de modelos (Full Social) completado con éxito.")
