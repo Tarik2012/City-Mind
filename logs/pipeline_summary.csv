@@ -1,0 +1,3 @@
+step,status,duration_seconds,start_time,end_time
+compare_results,completed,5.18,1760724069.944602,1760724075.1274028
+pytest_validation,passed,2.86,1760724075.1390824,1760724077.9962103

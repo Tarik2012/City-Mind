@@ -1,5 +1,5 @@
 # ======================================================
-# 🤖 CityMind - 04 Train Models (Full Social)
+# CityMind - 04 Train Models (Full Social)
 # Entrena modelos (PCA, LassoCV, RandomForest, XGBoost)
 # para predecir depresión y distress con variables sociales
 # ======================================================
@@ -24,7 +24,7 @@ OUT_DIR.mkdir(parents=True, exist_ok=True)
 
 TARGETS = ["depression_crudeprev", "mhlth_crudeprev"]
 
-print(f"📂 Buscando datasets de modelado en: {DATA_DIR.resolve()}")
+print(f"Buscando datasets de modelado en: {DATA_DIR.resolve()}")
 
 # ======================================================
 # 2️⃣ Función auxiliar: evaluación
@@ -38,7 +38,25 @@ def evaluate_model(y_true, y_pred):
     }
 
 # ======================================================
-# 3️⃣ Entrenamiento por target
+# 3️⃣ Integración con MLflow Tracking (módulo 11)
+# ======================================================
+try:
+    import importlib.util, sys, pathlib
+    spec = importlib.util.spec_from_file_location(
+        "mlflow_tracker",
+        pathlib.Path("scripts/common/11_mlflow_tracking.py")
+    )
+    mlflow_tracker = importlib.util.module_from_spec(spec)
+    sys.modules["mlflow_tracker"] = mlflow_tracker
+    spec.loader.exec_module(mlflow_tracker)
+    CityMindTracker = mlflow_tracker.CityMindTracker
+    tracker = CityMindTracker()
+except Exception as e:
+    tracker = None
+    print(f"Advertencia: no se pudo importar MLflow Tracker ({e})")
+
+# ======================================================
+# 4️⃣ Entrenamiento por target
 # ======================================================
 results = []
 
@@ -47,10 +65,9 @@ for target in TARGETS:
     print(f" Entrenando modelos (Full Social) para: {target}")
     print("==============================")
 
-    # Cargar dataset
     data_path = DATA_DIR / f"model_data_{target}.csv"
     if not data_path.exists():
-        print(f"⚠️ No se encontró {data_path.name}, se omite.")
+        print(f"No se encontró {data_path.name}, se omite.")
         continue
 
     df = pd.read_csv(data_path)
@@ -58,23 +75,18 @@ for target in TARGETS:
     X = df.drop(columns=[target])
     y = df[target]
 
-    # --- Train/test split
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-    # --- Escalado
     scaler = StandardScaler()
     X_train_scaled = scaler.fit_transform(X_train)
     X_test_scaled = scaler.transform(X_test)
 
-    # --- 1️ PCA (95% de varianza explicada)
     pca = PCA(n_components=0.95, random_state=42)
     X_train_pca = pca.fit_transform(X_train_scaled)
     X_test_pca = pca.transform(X_test_scaled)
     print(f" PCA → {pca.n_components_} componentes (95% varianza)")
 
-    # ==================================================
-    # 🔹 Modelo 1: LassoCV
-    # ==================================================
+    # ------------------ LassoCV ------------------
     lasso = LassoCV(cv=5, random_state=42, max_iter=10000)
     lasso.fit(X_train_scaled, y_train)
     preds_lasso = lasso.predict(X_test_scaled)
@@ -85,16 +97,18 @@ for target in TARGETS:
         "model": "LassoCV",
         **metrics_lasso
     })
-    print(f" LassoCV → R²={metrics_lasso['r2']:.3f} | RMSE={metrics_lasso['rmse']:.3f}")
+    print(f"LassoCV → R²={metrics_lasso['r2']:.3f} | RMSE={metrics_lasso['rmse']:.3f}")
 
-    # ==================================================
-    # 🔹 Modelo 2: Random Forest
-    # ==================================================
-    rf = RandomForestRegressor(
-        n_estimators=300,
-        random_state=42,
-        n_jobs=-1
-    )
+    if tracker:
+        tracker.log_metrics(
+            model_name="LassoCV",
+            scenario="full_social",
+            metrics_dict=metrics_lasso,
+            params={"target": target, "dataset_version": "2024"}
+        )
+
+    # ------------------ Random Forest ------------------
+    rf = RandomForestRegressor(n_estimators=300, random_state=42, n_jobs=-1)
     rf.fit(X_train, y_train)
     preds_rf = rf.predict(X_test)
     metrics_rf = evaluate_model(y_test, preds_rf)
@@ -104,20 +118,25 @@ for target in TARGETS:
         "model": "RandomForest",
         **metrics_rf
     })
-    print(f" RandomForest → R²={metrics_rf['r2']:.3f} | RMSE={metrics_rf['rmse']:.3f}")
+    print(f"RandomForest → R²={metrics_rf['r2']:.3f} | RMSE={metrics_rf['rmse']:.3f}")
 
-    # Guardar importancias
+    if tracker:
+        tracker.log_metrics(
+            model_name="RandomForest",
+            scenario="full_social",
+            metrics_dict=metrics_rf,
+            params={"target": target, "dataset_version": "2024"}
+        )
+
     importances = pd.DataFrame({
         "feature": X.columns,
         "importance": rf.feature_importances_
     }).sort_values(by="importance", ascending=False)
     imp_path = OUT_DIR / f"rf_importances_{target}.csv"
     importances.to_csv(imp_path, index=False)
-    print(f" Importancias RF guardadas en: {imp_path.name}")
+    print(f"Importancias RF guardadas en: {imp_path.name}")
 
-    # ==================================================
-    # 🔹 Modelo 3: XGBoost
-    # ==================================================
+    # ------------------ XGBoost ------------------
     xgb = XGBRegressor(
         n_estimators=400,
         learning_rate=0.05,
@@ -136,18 +155,26 @@ for target in TARGETS:
         "model": "XGBoost",
         **metrics_xgb
     })
-    print(f" XGBoost → R²={metrics_xgb['r2']:.3f} | RMSE={metrics_xgb['rmse']:.3f}")
+    print(f"XGBoost → R²={metrics_xgb['r2']:.3f} | RMSE={metrics_xgb['rmse']:.3f}")
 
-    print(f" Modelos completados para {target}")
+    if tracker:
+        tracker.log_metrics(
+            model_name="XGBoost",
+            scenario="full_social",
+            metrics_dict=metrics_xgb,
+            params={"target": target, "dataset_version": "2024"}
+        )
+
+    print(f"Modelos completados para {target}")
 
 # ======================================================
-# 4️⃣ Guardar métricas generales
+# 5️⃣ Guardar métricas generales
 # ======================================================
 metrics_df = pd.DataFrame(results)
 metrics_path = OUT_DIR / "model_metrics.csv"
 metrics_df.to_csv(metrics_path, index=False)
 
-print(f"\n Resultados guardados en: {metrics_path.name}")
+print(f"\nResultados guardados en: {metrics_path.name}")
 print(metrics_df)
 
-print("\n Entrenamiento de modelos (Full Social) completado con éxito.")
+print("\nEntrenamiento de modelos (Full Social) completado con éxito.")
