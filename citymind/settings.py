@@ -27,7 +27,7 @@ INSTALLED_APPS = [
     "api",
 ]
 
-# 🧱 Middleware
+#  Middleware
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",  # Para servir estáticos en producción
@@ -41,7 +41,7 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = "citymind.urls"
 
-# 🎨 Templates
+#  Templates
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
@@ -69,7 +69,7 @@ DATABASES = {
     )
 }
 
-# 🔐 Passwords
+#  Passwords
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
     {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
@@ -77,7 +77,7 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
-# 🌍 Internacionalización
+#  Internacionalización
 LANGUAGE_CODE = "en-us"
 TIME_ZONE = "UTC"
 USE_I18N = True

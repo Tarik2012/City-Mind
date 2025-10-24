@@ -1,5 +1,5 @@
 # ======================================================
-# CityMind - Snakemake Pipeline (versión estable)
+# CityMind - Snakemake Pipeline (versión PRO)
 # Pipeline completo: Wrangling → Training → Comparison → Testing
 # ======================================================
 
@@ -9,9 +9,11 @@ import time
 import csv
 import importlib.util
 from pathlib import Path
+from datetime import datetime
+import shutil
 
 # ------------------------------------------------------
-# Cargar dinámicamente el módulo 10_monitoring_logging.py
+# 1. Cargar el módulo de logging dinámicamente
 # ------------------------------------------------------
 monitoring_path = Path("scripts/common/10_monitoring_logging.py")
 spec = importlib.util.spec_from_file_location("monitoring", monitoring_path)
@@ -22,23 +24,20 @@ spec.loader.exec_module(monitoring)
 PipelineStep = monitoring.PipelineStep
 logger = monitoring.logger
 
-# ------------------------------------------------------
-# Función auxiliar: registrar resumen de ejecución
-# ------------------------------------------------------
-summary_path = Path("logs/pipeline_summary.csv")
-summary_path.parent.mkdir(exist_ok=True)
-if not summary_path.exists():
-    with open(summary_path, "w", newline="") as f:
-        writer = csv.writer(f)
-        writer.writerow(["step", "status", "duration_seconds", "start_time", "end_time"])
+# Carpeta actual de logs (viene del módulo)
+LOG_DIR = monitoring.LOG_DIR
+PIPELINE_SUMMARY = monitoring.summary_file
 
+# ------------------------------------------------------
+# 2. Función auxiliar: registrar resumen adicional
+# ------------------------------------------------------
 def append_summary(step, status, duration, start, end):
-    with open(summary_path, "a", newline="") as f:
+    with open(PIPELINE_SUMMARY, "a", newline="") as f:
         writer = csv.writer(f)
         writer.writerow([step, status, f"{duration:.2f}", start, end])
 
 # ------------------------------------------------------
-# 0️⃣ Regla principal
+# 3. Regla principal (objetivos finales)
 # ------------------------------------------------------
 rule all:
     input:
@@ -48,7 +47,7 @@ rule all:
         "tests/pytest_passed.txt"
 
 # ------------------------------------------------------
-# 1️⃣ Wrangling de datos
+# 4. Wrangling de datos
 # ------------------------------------------------------
 rule wrangling:
     input:
@@ -64,7 +63,7 @@ rule wrangling:
         append_summary("wrangling", "completed", end - start, start, end)
 
 # ------------------------------------------------------
-# 2️⃣ Entrenamiento de modelos
+# 5. Entrenamiento de modelos
 # ------------------------------------------------------
 rule train_models:
     input:
@@ -82,7 +81,7 @@ rule train_models:
         append_summary("train_models", "completed", end - start, start, end)
 
 # ------------------------------------------------------
-# 3️⃣ Comparación de resultados
+# 6. Comparación de resultados
 # ------------------------------------------------------
 rule compare_results:
     input:
@@ -98,7 +97,7 @@ rule compare_results:
         append_summary("compare_results", "completed", end - start, start, end)
 
 # ------------------------------------------------------
-# 4️⃣ Pruebas automáticas con pytest
+# 7. Testing y validación
 # ------------------------------------------------------
 rule test:
     input:
@@ -110,12 +109,12 @@ rule test:
         with PipelineStep("pytest_validation"):
             import subprocess
 
-            os.makedirs("logs", exist_ok=True)
-            print("Running pytest...")
+            pytest_log = LOG_DIR / "pytest_output.log"
+            print(f"Running pytest (log → {pytest_log})...")
 
             result = subprocess.run(
                 ["pytest", "-v", "--disable-warnings"],
-                stdout=open("logs/pytest_output.log", "w"),
+                stdout=open(pytest_log, "w"),
                 stderr=subprocess.STDOUT
             )
 
@@ -124,8 +123,21 @@ rule test:
                 with open("tests/pytest_passed.txt", "w") as f:
                     f.write("ok")
                 append_summary("pytest_validation", "passed", end - start, start, end)
-                print("All tests passed.")
+                print("\n✅ All tests passed successfully.")
             else:
                 append_summary("pytest_validation", "failed", end - start, start, end)
-                print("Tests failed. Check logs/pytest_output.log")
+                print("\n❌ Some tests failed. Check log at:", pytest_log)
                 sys.exit(result.returncode)
+
+# ------------------------------------------------------
+# 8. Regla opcional: limpiar todo
+# ------------------------------------------------------
+rule clean:
+    shell:
+        """
+        echo Cleaning temporary data and logs...
+        rmdir /s /q data\\interim 2>nul || true
+        rmdir /s /q logs 2>nul || true
+        mkdir logs
+        echo Done.
+        """
