@@ -63,3 +63,4 @@ scripts-old/
 .DS_Store
 Thumbs.db
 pandoc-*.msi
+/models
