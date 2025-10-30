@@ -1,0 +1,13 @@
+target,model,r2,rmse,mae,pca_components,scenario
+depression_crudeprev,LassoCV,0.8194,1.4401,1.116,5,No Social
+depression_crudeprev,RandomForest,0.8149,1.4579,1.1107,5,No Social
+depression_crudeprev,XGBoost,0.8485,1.319,1.0046,5,No Social
+mhlth_crudeprev,LassoCV,0.9488,0.53,0.4109,9,No Social
+mhlth_crudeprev,RandomForest,0.9518,0.5145,0.3968,9,No Social
+mhlth_crudeprev,XGBoost,0.9639,0.4449,0.3357,9,No Social
+depression_crudeprev,LassoCV,0.8194,1.4401,1.116,5,Full Social
+depression_crudeprev,RandomForest,0.8149,1.4579,1.1107,5,Full Social
+depression_crudeprev,XGBoost,0.8485,1.319,1.0046,5,Full Social
+mhlth_crudeprev,LassoCV,0.9553,0.4956,0.3819,10,Full Social
+mhlth_crudeprev,RandomForest,0.9522,0.5123,0.3913,10,Full Social
+mhlth_crudeprev,XGBoost,0.9674,0.4228,0.3256,10,Full Social

@@ -1,6 +1,6 @@
 # ======================================================
 # CityMind - Snakemake Pipeline (versión PRO)
-# Pipeline completo: Wrangling → Training → Comparison → Testing
+# Pipeline completo: Wrangling → Training → Comparison → Testing → Ingesta
 # ======================================================
 
 import os
@@ -44,17 +44,19 @@ rule all:
         "data/interim/no_social/model_metrics.csv",
         "data/interim/full_social/model_metrics.csv",
         "data/interim/comparison/comparison_summary.csv",
-        "tests/pytest_passed.txt"
+        "tests/pytest_passed.txt",
+        "logs/db_ingest_done.txt"
 
 # ------------------------------------------------------
-# 4. Wrangling de datos
+# 4. Wrangling de datos (añadido export de final_places.csv)
 # ------------------------------------------------------
 rule wrangling:
     input:
         "data/raw/places_county_2024.csv"
     output:
-        "data/processed/no_social/places_no_social_clean.csv",
-        "data/processed/full_social/places_imputed_full_clean.csv"
+        no_social="data/processed/no_social/places_no_social_clean.csv",
+        full_social="data/processed/full_social/places_imputed_full_clean.csv",
+        final="data/processed/final_places.csv"
     run:
         start = time.time()
         with PipelineStep("wrangling"):
@@ -137,7 +139,38 @@ rule clean:
         """
         echo Cleaning temporary data and logs...
         rmdir /s /q data\\interim 2>nul || true
+        rmdir /s /q data\\processed 2>nul || true
         rmdir /s /q logs 2>nul || true
         mkdir logs
         echo Done.
         """
+
+# ------------------------------------------------------
+# 9. Ingesta a PostgreSQL (Django ORM)
+# ------------------------------------------------------
+rule ingest_to_postgres:
+    input:
+        "tests/pytest_passed.txt",
+        places="data/processed/final_places.csv",
+        metrics_no_social="data/interim/no_social/model_metrics.csv",
+        metrics_full_social="data/interim/full_social/model_metrics.csv",
+        comparison="data/interim/comparison/comparison_summary.csv"
+    output:
+        "logs/db_ingest_done.txt"
+    run:
+        start = time.time()
+        with PipelineStep("ingest_to_postgres"):
+            print("🚀 Iniciando ingesta a PostgreSQL mediante Django ORM...")
+            result = os.system("python scripts/db_ingest/06_ingest_to_postgres.py")
+
+            if result == 0:
+                with open("logs/db_ingest_done.txt", "w") as f:
+                    f.write("done")
+                print("✅ Ingesta a PostgreSQL completada correctamente.")
+                status = "completed"
+            else:
+                print("❌ Error durante la ingesta a PostgreSQL.")
+                status = "failed"
+
+        end = time.time()
+        append_summary("ingest_to_postgres", status, end - start, start, end)

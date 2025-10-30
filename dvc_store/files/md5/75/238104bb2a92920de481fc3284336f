@@ -1,0 +1,19 @@
+2025-10-24 20:18:27,924 - INFO - 🧠 Iniciando comparación de resultados CityMind
+2025-10-24 20:18:27,925 - INFO - Leyendo resultados desde:
+2025-10-24 20:18:27,926 - INFO -    • No Social: C:\Users\erroc\OneDrive\Desktop\practicas\data science project\CityMind\data\interim\no_social\model_metrics.csv
+2025-10-24 20:18:27,926 - INFO -    • Full Social: C:\Users\erroc\OneDrive\Desktop\practicas\data science project\CityMind\data\interim\full_social\model_metrics.csv
+2025-10-24 20:18:27,932 - INFO - ✅ Métricas cargadas correctamente
+2025-10-24 20:18:27,945 - INFO - 📁 Archivos generados correctamente:
+2025-10-24 20:18:27,946 - INFO -    • Formato largo: comparison_summary.csv
+2025-10-24 20:18:27,946 - INFO -    • Formato ancho: comparison_summary_wide.csv
+2025-10-24 20:18:27,951 - INFO - Resumen de mejora por modelo:
+              target        model  r2_no_social  r2_full_social  r2_diff  r2_diff_pct
+depression_crudeprev      LassoCV        0.8194          0.8194   0.0000     0.000000
+depression_crudeprev RandomForest        0.8149          0.8149   0.0000     0.000000
+depression_crudeprev      XGBoost        0.8485          0.8485   0.0000     0.000000
+     mhlth_crudeprev      LassoCV        0.9488          0.9553   0.0065     0.685076
+     mhlth_crudeprev RandomForest        0.9518          0.9522   0.0004     0.042026
+     mhlth_crudeprev      XGBoost        0.9639          0.9674   0.0035     0.363108
+2025-10-24 20:18:27,951 - INFO - 📊 Mejora media en R²: 0.0017 (0.18%)
+2025-10-24 20:18:28,437 - INFO - 🖼️ Gráfico guardado en: r2_comparison.png
+2025-10-24 20:18:28,437 - INFO - ✅ Comparación completada con éxito.

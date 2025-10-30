@@ -1,5 +1,0 @@
-step,status,duration_seconds,start_time,end_time
-wrangling,completed,1.79,1761329472.215933,1761329474.0080123
-train_models,completed,19.74,1761329474.0308504,1761329493.7717838
-compare_results,completed,1.91,1761329493.8141496,1761329495.7231526
-pytest_validation,passed,2.21,1761329495.732188,1761329497.9390473

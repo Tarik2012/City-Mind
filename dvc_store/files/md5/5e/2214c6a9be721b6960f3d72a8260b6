@@ -1,0 +1,14 @@
+feature,importance
+mhlth_crudeprev,0.5253758752097281
+casthma_crudeprev,0.09517117235949644
+sleep_crudeprev,0.06193122692668685
+indeplive_crudeprev,0.06089797113821484
+arthritis_crudeprev,0.05178977020414572
+ghlth_crudeprev,0.041731851343414984
+copd_crudeprev,0.03406004159453962
+csmoking_crudeprev,0.030790272194975845
+cognition_crudeprev,0.025620267908114225
+teethlost_crudeprev,0.02164228491659182
+disability_crudeprev,0.01985415099904836
+phlth_crudeprev,0.01618508615163083
+mobility_crudeprev,0.014950029053412334

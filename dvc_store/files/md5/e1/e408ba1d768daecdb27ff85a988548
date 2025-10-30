@@ -1,0 +1,4 @@
+dataset,rows,cols,nulls
+places_no_social_clean.csv,3077,39,0
+places_imputed_clean.csv,3077,46,5089
+places_imputed_full_clean.csv,3077,46,0

@@ -1,10 +1,10 @@
 # ======================================================
-# 🧠 CityMind - Git Ignore
+#  CityMind - Git Ignore
 # Limpieza para proyecto de ciencia de datos / MLOps
 # ======================================================
 
 # ----------------------------
-# 🐍 Python
+#  Python
 # ----------------------------
 __pycache__/
 *.pyc
@@ -13,7 +13,7 @@ __pycache__/
 .Python
 
 # ----------------------------
-# 🧩 Entornos virtuales
+#  Entornos virtuales
 # ----------------------------
 env/
 venv/
@@ -28,7 +28,7 @@ venv/
 *.bak
 
 # ----------------------------
-# 📊 Datos
+#  Datos
 # ----------------------------
 data/raw/
 data/interim/

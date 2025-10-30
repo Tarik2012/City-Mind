@@ -6,6 +6,7 @@ from django.conf.urls.static import static
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("", include("core.urls")),  # Home → core
+    path("api/", include("api.urls")),
 ]
 
 # Solo en modo desarrollo

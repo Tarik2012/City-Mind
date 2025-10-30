@@ -1,7 +1,7 @@
 # ======================================================
-# CityMind - 04 Train Models (No Social)
-# Entrena modelos (PCA, LassoCV, RandomForest, XGBoost)
-# para depresión y distress SIN variables sociales
+#  CityMind - 04 Train Models (No Social)
+#  Entrena modelos (PCA, LassoCV, RandomForest, XGBoost)
+#  para depresión y distress SIN variables sociales
 # ======================================================
 
 import pandas as pd
@@ -78,7 +78,7 @@ try:
         logger.warning(f"No se pudo importar MLflow Tracker: {e}")
 
     # ======================================================
-    # 4. Entrenamiento
+    # 4. Entrenamiento de modelos
     # ======================================================
     results = []
 
@@ -92,17 +92,34 @@ try:
             continue
 
         df = pd.read_csv(path)
-        X = df.drop(columns=[target])
+
+        # 🔹 LIMPIEZA: convertir valores numéricos con comas ("4,902") a float
+        for col in df.columns:
+            if df[col].dtype == object:
+                df[col] = (
+                    df[col]
+                    .astype(str)
+                    .str.replace(",", "", regex=False)
+                    .replace("nan", np.nan)
+                )
+                df[col] = pd.to_numeric(df[col], errors="ignore")
+
+        # 🔹 Eliminar columnas categóricas no numéricas
+        cols_to_drop = [target, "stateabbr", "statedesc", "countyname", "countyfips"]
+        X = df.drop(columns=[c for c in cols_to_drop if c in df.columns])
         y = df[target]
 
+        # División de datos
         X_train, X_test, y_train, y_test = train_test_split(
             X, y, test_size=0.2, random_state=42
         )
 
+        # Escalado
         scaler = StandardScaler()
         X_train_scaled = scaler.fit_transform(X_train)
         X_test_scaled = scaler.transform(X_test)
 
+        # PCA
         pca = PCA(n_components=0.95, random_state=42)
         X_train_pca = pca.fit_transform(X_train_scaled)
         X_test_pca = pca.transform(X_test_scaled)
@@ -161,6 +178,5 @@ try:
     step.end(status="SUCCESS", message="Entrenamiento No Social completado correctamente.")
 
 except Exception as e:
-    # Si algo falla, registrar error
     step.end(status="FAILED", message=str(e))
     raise

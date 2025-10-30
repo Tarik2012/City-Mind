@@ -1,9 +1,0 @@
-timestamp,step_name,status,duration_sec,message
-2025-10-24 20:18:06,wrangling,SUCCESS,1.41,
-wrangling,completed,1.41,1761329885.1879523,1761329886.5989513
-2025-10-24 20:18:26,train_models,SUCCESS,20.18,
-train_models,completed,20.18,1761329886.613086,1761329906.7896614
-2025-10-24 20:18:28,compare_results,SUCCESS,1.84,
-compare_results,completed,1.84,1761329906.831102,1761329908.666913
-pytest_validation,passed,2.29,1761329908.675674,1761329910.9684713
-2025-10-24 20:18:30,pytest_validation,SUCCESS,2.29,
