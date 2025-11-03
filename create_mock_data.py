@@ -67,9 +67,9 @@ if os.getenv("GITHUB_ACTIONS") == "true":
         "target": ["depression_crudeprev", "mhlth_crudeprev"] * 2,
         "model": ["XGBoost", "RandomForest", "XGBoost", "LassoCV"],
         "scenario": ["no_social", "no_social", "full_social", "full_social"],
-        "r2": [0.85, 0.83, 0.88, 0.81],
-        "rmse": [2.5, 2.8, 2.3, 2.9],
-        "mae": [1.9, 2.0, 1.7, 2.1]
+        # XGBoost siempre mejor
+        "r2": [0.87, 0.82, 0.90, 0.84],
+        "rmse": [2.4, 2.7, 2.2, 2.8],
+        "mae": [1.8, 2.0, 1.6, 2.1]
     }).to_csv("data/interim/comparison/comparison_summary.csv", index=False)
 
-    print("✅ Datos mock creados correctamente.")
