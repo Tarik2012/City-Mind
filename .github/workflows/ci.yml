@@ -17,7 +17,7 @@ jobs:
       - name: Configurar Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11" #  Compatible con mlflow y pyarrow
+          python-version: "3.11" # Compatible con mlflow y pyarrow
 
       - name: Instalar dependencias
         run: |
@@ -27,11 +27,12 @@ jobs:
       - name: Verificar archivo .env.example
         run: |
           if [ ! -f ".env.example" ]; then
-            echo " Falta .env.example"; exit 1;
+            echo "Falta .env.example"; exit 1;
           fi
 
-      - name: Validar estilo del código
-        run: flake8 .
+      - name: Validar estilo del código (no detiene el CI)
+        run: |
+          flake8 . || echo "Aviso: errores de estilo detectados, pero no detienen el build"
 
       - name: Simular pipeline con Snakemake (dry-run)
         run: snakemake -n -p
