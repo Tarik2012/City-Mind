@@ -17,18 +17,24 @@ jobs:
       - name: Configurar Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.13"
+          python-version: "3.11" #  Compatible con mlflow y pyarrow
 
       - name: Instalar dependencias
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      - name: Verificar archivo .env.example
+        run: |
+          if [ ! -f ".env.example" ]; then
+            echo " Falta .env.example"; exit 1;
+          fi
+
       - name: Validar estilo del código
         run: flake8 .
 
-      - name: Simular pipeline con Snakemake
+      - name: Simular pipeline con Snakemake (dry-run)
         run: snakemake -n -p
 
-      - name: Ejecutar tests
+      - name: Ejecutar tests con Pytest
         run: pytest -v
