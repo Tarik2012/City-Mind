@@ -38,5 +38,11 @@ jobs:
         run: |
           snakemake -n -p --allow-missing-files || echo "Aviso: faltan datos, pero el flujo está bien definido"
 
+      # 🔹 NUEVO PASO: crear datasets mock antes de los tests
+      - name: Crear datasets mock para CI
+        run: |
+          python tests/conftest_ci_mock.py
+          echo "✅ Datos mock generados correctamente."
+
       - name: Ejecutar tests con Pytest
         run: pytest -v
