@@ -1,0 +1,11 @@
+timestamp,step_name,status,duration_sec,message
+2025-11-03 19:52:38,wrangling,SUCCESS,1.89,
+wrangling,completed,1.89,1762195956.476657,1762195958.365495
+2025-11-03 19:53:21,train_models,SUCCESS,42.76,
+train_models,completed,42.77,1762195958.3787062,1762196001.143711
+2025-11-03 19:53:25,compare_results,SUCCESS,3.87,
+compare_results,completed,3.87,1762196001.2028818,1762196005.075983
+pytest_validation,passed,3.06,1762196005.085145,1762196008.1470373
+2025-11-03 19:53:28,pytest_validation,SUCCESS,3.06,
+2025-11-03 19:53:36,ingest_to_postgres,SUCCESS,8.4,
+ingest_to_postgres,completed,8.40,1762196008.1585507,1762196016.5575805
