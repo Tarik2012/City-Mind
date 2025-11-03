@@ -23,3 +23,9 @@ dvc==3.55.2
 # Producción
 whitenoise==6.7.0
 gunicorn==23.0.0
+
+# CI/CD y pruebas
+snakemake==8.14.0
+pytest==8.3.3
+flake8==7.1.1
+

@@ -5,10 +5,9 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("", include("core.urls")),  # Home → core
-    path("api/", include("api.urls")),
+    path("", include("dashboard.urls")),  # frontend visual
+    path("api/", include("api.urls")),    # toda la API (router + predict)
 ]
 
-# Solo en modo desarrollo
 if settings.DEBUG:
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATICFILES_DIRS[0])
