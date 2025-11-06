@@ -1,27 +1,166 @@
-{% extends "dashboard/base.html" %} {% block content %}
-<div class="text-center space-y-6">
-  <!-- Hero section -->
-  <h1 class="text-4xl font-bold text-indigo-700">Welcome to CityMind</h1>
-  <p class="text-lg text-gray-600 max-w-2xl mx-auto">
-    CityMind is a data-driven project that predicts the prevalence of depression
-    in cities and counties, based on socioeconomic, environmental, and health
-    factors.
-  </p>
+{% extends "dashboard/base.html" %}
+{% load static %}
 
-  <!-- Action buttons -->
-  <div class="flex justify-center space-x-4">
+{% block content %}
+<!-- 🧠 CityMind HOME -->
+<div class="bg-white shadow-lg rounded-2xl mx-auto mt-10 px-10 py-14 max-w-7xl">
+  <!-- 🧩 HERO -->
+  <div class="text-center space-y-4">
+    <h1 class="text-5xl font-extrabold text-emerald-600">Welcome to CityMind</h1>
+    <p class="text-lg text-gray-600 max-w-3xl mx-auto">
+      CityMind is a data-driven system that analyzes and predicts mental health and depression
+      prevalence across U.S. counties, using socioeconomic, environmental, and health indicators.
+    </p>
+  </div>
+
+  <!-- 🧭 SYSTEM OVERVIEW -->
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-5xl mx-auto mt-12">
+    <!-- Total Counties -->
+    <div class="bg-gray-50 border border-gray-200 rounded-xl p-6 shadow-sm text-center">
+      <h3 class="text-sm text-gray-500 uppercase tracking-wide">Total Counties</h3>
+      <p class="text-4xl font-extrabold text-emerald-600 mt-2">
+        {{ total_places|default:"—" }}
+      </p>
+    </div>
+
+    <!-- Last Update -->
+    <div class="bg-gray-50 border border-gray-200 rounded-xl p-6 shadow-sm text-center">
+      <h3 class="text-sm text-gray-500 uppercase tracking-wide">Last Update</h3>
+      <p class="text-2xl font-semibold text-emerald-600 mt-2">
+        {{ last_update|date:"M d, Y H:i" }}
+      </p>
+    </div>
+
+    <!-- Total Predictions -->
+    <div class="bg-gray-50 border border-gray-200 rounded-xl p-6 shadow-sm text-center">
+      <h3 class="text-sm text-gray-500 uppercase tracking-wide">Predictions Stored</h3>
+      <p class="text-4xl font-extrabold text-emerald-600 mt-2">
+        {{ total_predictions|default:"0" }}
+      </p>
+    </div>
+  </div>
+
+  <!-- 🧩 FOUR MODEL CARDS -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto mt-14">
+    {% for m in latest_metrics %}
+    <div class="bg-gray-50 border border-gray-200 rounded-xl p-6 shadow-sm text-center transition hover:shadow-md">
+      <h3 class="text-sm text-gray-500 uppercase tracking-wide mb-1">
+        {% if m.target == "mhlth_crudeprev" %}
+          Mental Health
+        {% else %}
+          Depression
+        {% endif %}
+      </h3>
+      <p class="text-xs text-gray-400 mb-2">
+        {% if m.dataset_type == "no_social" %}
+          (No Social)
+        {% else %}
+          (Full Social)
+        {% endif %}
+      </p>
+      <p class="text-lg font-semibold text-gray-800">{{ m.model_name }}</p>
+      <p class="text-sm text-emerald-600 font-medium mt-2">
+        R² {{ m.r2_score|floatformat:3 }}<br>
+        MAE {{ m.mae|floatformat:3 }} | RMSE {{ m.rmse|floatformat:3 }}
+      </p>
+    </div>
+    {% empty %}
+    <div class="col-span-4 text-center text-gray-400 py-6">
+      No model data available
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- 🧭 ACTION BUTTONS -->
+  <div class="flex justify-center space-x-6 mt-12">
     <a
       href="/dashboard/"
-      class="px-6 py-3 bg-indigo-600 text-white rounded-lg shadow hover:bg-indigo-700"
+      class="px-8 py-3 bg-emerald-600 text-white font-semibold rounded-lg shadow hover:bg-emerald-700 transition"
+      >View Dashboard</a
     >
-      View Dashboard
-    </a>
     <a
       href="/predict/"
-      class="px-6 py-3 bg-gray-200 text-gray-800 rounded-lg shadow hover:bg-gray-300"
+      class="px-8 py-3 bg-gray-200 text-gray-800 font-semibold rounded-lg shadow hover:bg-gray-300 transition"
+      >Make a Prediction</a
     >
-      Make a Prediction
-    </a>
   </div>
+
+  <!-- 📊 GLOBAL TABLE -->
+  <section class="mt-16">
+    <h2 class="text-3xl font-semibold text-gray-800 mb-6 text-center">
+      XGBoost Model Performance Overview
+    </h2>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm border border-gray-200 rounded-xl">
+        <thead>
+          <tr class="bg-gray-100 text-gray-600 uppercase text-xs">
+            <th class="p-3 text-left">Target</th>
+            <th class="p-3 text-left">Dataset Type</th>
+            <th class="p-3 text-left">Model</th>
+            <th class="p-3 text-left">R²</th>
+            <th class="p-3 text-left">MAE</th>
+            <th class="p-3 text-left">RMSE</th>
+            <th class="p-3 text-left">Timestamp</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for m in latest_metrics %}
+          <tr class="border-t border-gray-100 hover:bg-gray-50">
+            <td class="p-3 font-medium text-gray-800">{{ m.target }}</td>
+            <td class="p-3">{{ m.dataset_type }}</td>
+            <td class="p-3">{{ m.model_name }}</td>
+            <td class="p-3 text-emerald-600 font-semibold">{{ m.r2_score|floatformat:3 }}</td>
+            <td class="p-3">{{ m.mae|floatformat:3 }}</td>
+            <td class="p-3">{{ m.rmse|floatformat:3 }}</td>
+            <td class="p-3 text-gray-500">{{ m.timestamp|date:"M d, Y H:i" }}</td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="7" class="text-center text-gray-400 py-6">
+              No metrics available.
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 🧠 OPTIONAL SYSTEM INSIGHTS (compact) -->
+  <!-- 🧠 SYSTEM INSIGHTS (dynamic version) -->
+<!-- 🧠 SYSTEM INSIGHTS (dynamic version) -->
+{% if social_gain %}
+<section class="mt-14 text-center text-gray-700">
+  <h3 class="text-xl font-semibold text-gray-800 mb-3">System Insights</h3>
+
+  {% if social_gain_abs < 0.5 %}
+  <p>
+    Including social factors had
+    <span class="font-semibold text-gray-500">no significant impact</span>
+    on model performance.
+  </p>
+  {% elif social_gain > 0 %}
+  <p>
+    Including social factors <span class="text-emerald-600 font-semibold">improved</span>
+    model performance by
+    <span class="text-emerald-600 font-semibold">+{{ social_gain|floatformat:2 }}%</span> on average.
+  </p>
+  {% else %}
+  <p>
+    Including social factors <span class="text-red-600 font-semibold">decreased</span>
+    model performance by
+    <span class="text-red-600 font-semibold">{{ social_gain|floatformat:2 }}%</span> on average.
+  </p>
+  {% endif %}
+
+  <p class="text-sm text-gray-500 mt-2">
+    Based on <span class="font-semibold">{{ latest_metrics|length }}</span> models trained.
+  </p>
+</section>
+
+{% endif %}
+
+
 </div>
 {% endblock %}

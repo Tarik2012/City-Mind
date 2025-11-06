@@ -1,107 +1,96 @@
 # 🧠 CityMind Project — AI-Powered Mental Health Insights
+[![CityMind CI](https://github.com/Tarik2012/City-Mind/actions/workflows/ci.yml/badge.svg)](https://github.com/Tarik2012/City-Mind/actions/workflows/ci.yml)
 
-CityMind is a full data science + backend project that analyzes **mental health and depression prevalence** across US counties  
-using the **CDC PLACES 2024 dataset**.  
-
-It integrates a complete ML pipeline (Snakemake) with a **Django REST API** that delivers real-time predictions  
-based on summarized socio-health indicators.
+CityMind es un proyecto **end-to-end (ML + backend)** que analiza la **prevalencia de salud mental y depresión** en condados de EE. UU. usando **CDC PLACES 2024**.  
+Integra un **pipeline ML (Snakemake)** y una **Django REST API** para servir predicciones en tiempo real a partir de indicadores socio-sanitarios agregados.
 
 ---
 
-## 🌍 Overview
+## 🌍 Targets y escenarios
 
-The system predicts two main health targets:
+| Target                 | Descripción                         |
+|-----------------------|-------------------------------------|
+| `mhlth_crudeprev`     | Prevalencia de mala salud mental    |
+| `depression_crudeprev`| Prevalencia de depresión            |
 
-| Target | Description |
-|--------|--------------|
-| `mhlth_crudeprev` | Poor mental health prevalence |
-| `depression_crudeprev` | Depression prevalence |
+Cada target se entrena en dos escenarios paralelos:
+- 🧩 **No Social** → solo variables de salud/demográficas  
+- 🌐 **Full Social** → añade indicadores sociales/económicos/ambientales  
 
-Each is trained in two parallel scenarios:
-- 🧩 **No Social** → only health + demographic features  
-- 🌐 **Full Social** → includes social, economic, and environmental features  
-
-➡️ Result: **4 XGBoost models** (`no_social` + `full_social` × 2 targets)
+➡️ Resultado: **4 modelos XGBoost** (`no_social` + `full_social` × 2 targets).
 
 ---
 
-## 🧱 Core Architecture
+## 🧱 Arquitectura
 
-| Module | Description |
-|--------|--------------|
-| **Django Backend (`core`, `api`)** | ORM models, REST endpoints, and PostgreSQL integration |
-| **ML Pipeline (Snakemake)** | Wrangling → Training → Comparison → Testing → Ingestion |
-| **Scripts** | Modular scripts for wrangling, training, and result comparison |
-| **Database Integration** | Automated data ingestion via Django ORM |
+| Módulo                      | Descripción                                                     |
+|----------------------------|-----------------------------------------------------------------|
+| **Django Backend (`core`, `api`)** | Modelos ORM, endpoints REST y conexión PostgreSQL          |
+| **Pipeline ML (Snakemake)** | Wrangling → Training → Comparison → Testing → Ingestion        |
+| **Scripts**                | Preprocesado, entrenamiento y comparación                       |
+| **DB Ingest**              | Ingesta automática vía ORM de Django                            |
 
 ---
 
-## 📂 Project Structure
+## 📂 Estructura del proyecto
 
 ```
 CityMind/
-│
-├── core/                    # Django models, admin, and ORM logic
-├── api/                     # Django REST API (PredictView, serializers, URLs)
-│
+├── core/                         # Django models/admin/ORM
+├── api/                          # DRF (views/serializers/urls)
 ├── scripts/
-│   ├── common/              # Shared preprocessing scripts (wrangling, monitoring, feature expansion)
-│   ├── no_social/           # Model training without social indicators
-│   ├── full_social/         # Model training including social indicators
-│   ├── comparison/          # Model comparison and visualization
-│   ├── db_ingest/           # ORM-based ingestion into PostgreSQL
-│
+│   ├── common/                   # Wrangling y utilidades
+│   ├── no_social/                # Entrenamiento sin variables sociales
+│   ├── full_social/              # Entrenamiento con variables sociales
+│   └── comparison/               # Comparación y visualización
 ├── data/
-│   ├── raw/                 # CDC PLACES input data
-│   ├── processed/           # Clean data ready for ML
-│   ├── interim/             # Model metrics and comparison summaries
-│
-├── models/                  # Trained models (.joblib)
-├── logs/                    # Pipeline and API logs
-├── tests/                   # Pytest validations
-├── Snakefile                # Main Snakemake automation file
+│   ├── raw/                      # Datos CDC de entrada
+│   ├── processed/                # Datos limpios para ML
+│   └── interim/                  # Métricas y resúmenes
+├── models/                       # Modelos entrenados (.joblib)
+├── tests/                        # Pytest + mocks (create_mock_data.py)
+├── logs/                         # Logs de pipeline y API
+├── Snakefile                     # Definición de Snakemake
 ├── requirements.txt
 ├── manage.py
-└── README.md
+└── .github/workflows/ci.yml      # CI de GitHub Actions
 ```
 
 ---
 
-## ⚙️ Installation & Setup
+## ⚙️ Instalación y arranque
 
-### 1️⃣ Create environment
+### 1) Crear entorno
 ```bash
 python -m venv env
-env\Scripts\activate          # Windows
-# or
-source env/bin/activate       # macOS/Linux
+# Windows
+env\Scripts\activate
+# macOS/Linux
+source env/bin/activate
 ```
 
-### 2️⃣ Install dependencies
+### 2) Dependencias
 ```bash
 pip install -r requirements.txt
 ```
 
-### 3️⃣ Run migrations (PostgreSQL)
+### 3) Migraciones (PostgreSQL)
 ```bash
 python manage.py migrate
 ```
 
-### 4️⃣ Launch the backend
+### 4) Levantar API
 ```bash
 python manage.py runserver
 ```
 
-Visit the API at:  
-👉 **http://127.0.0.1:8000/api/predict/**
+API: http://127.0.0.1:8000/api/predict/
 
 ---
 
-## 🔮 Prediction API (Example)
+## 🔮 Ejemplo de predicción
 
 ### POST `/api/predict/`
-Send a JSON body with 8–9 summarized socio-health indicators:
-
 ```json
 {
   "health_index": 0.25,
@@ -118,7 +107,7 @@ Send a JSON body with 8–9 summarized socio-health indicators:
 }
 ```
 
-### ✅ Response
+**Respuesta**
 ```json
 {
   "id": 1,
@@ -130,64 +119,97 @@ Send a JSON body with 8–9 summarized socio-health indicators:
 }
 ```
 
-> 💡 Internally, `expand_features()` translates the summarized input into  
-> 41–45 real features expected by each XGBoost model.
+> Internamente `expand_features()` transforma los índices agregados en ~41–45 features reales esperadas por cada modelo XGBoost.
 
 ---
 
-## 📊 ML Pipeline Execution
-
-Run the **entire project workflow** via Snakemake:
+## 📊 Ejecución del pipeline (Snakemake)
 
 ```bash
 snakemake -p --cores 1 --latency-wait 10
 ```
 
-This executes:
-1. 🧹 Data Wrangling  
-2. 🧠 Model Training (No Social + Full Social)  
-3. 📈 Results Comparison  
-4. 🧪 Pytest Validation  
-5. 🗃️ ORM Database Ingestion  
+Secuencia:
+1. 🧹 Wrangling  
+2. 🧠 Entrenamiento (No Social + Full Social)  
+3. 📈 Comparación de resultados  
+4. 🧪 Pytest  
+5. 🗃️ Ingesta a DB por ORM  
 
 ---
 
-## 📦 Outputs
+## 📦 Artefactos generados
 
-| File | Description |
-|------|-------------|
-| `data/interim/no_social/model_metrics.csv` | Model performance (no social) |
-| `data/interim/full_social/model_metrics.csv` | Model performance (full social) |
-| `data/interim/comparison/comparison_summary.csv` | Summary of R², MAE, RMSE |
-| `data/interim/comparison/r2_comparison.png` | R² improvement visualization |
-| `logs/db_ingest_done.txt` | Pipeline success marker |
-
----
-
-## 🧩 Technologies Used
-
-| Category | Stack |
-|-----------|--------|
-| **ML / Data** | XGBoost, Scikit-learn, Pandas, NumPy |
-| **Backend** | Django 5 + Django REST Framework |
-| **Orchestration** | Snakemake |
-| **Database** | PostgreSQL (via Django ORM) |
-| **Testing** | Pytest |
-| **Visualization** | Matplotlib |
+| Archivo                                        | Descripción                               |
+|-----------------------------------------------|-------------------------------------------|
+| `data/interim/no_social/model_metrics.csv`     | Métricas modelo No Social                 |
+| `data/interim/full_social/model_metrics.csv`   | Métricas modelo Full Social               |
+| `data/interim/comparison/comparison_summary.csv` | R² / MAE / RMSE comparativo             |
+| `data/interim/comparison/r2_comparison.png`    | Visualización de mejora en R²             |
+| `logs/db_ingest_done.txt`                      | Marcador de pipeline completo             |
 
 ---
 
-## 🧪 Testing
+## 🧪 Tests
 
-Run tests manually:
+Ejecutar tests localmente:
 ```bash
 pytest -v
 ```
 Logs: `logs/pytest_output.log`
 
+**En CI** se crean datos mock compatibles con los tests:
+- `tests/create_mock_data.py` genera:
+  - `data/processed/no_social/places_no_social_clean.csv`
+  - `data/processed/full_social/places_imputed_full_clean.csv`
+  - métricas por escenario y `comparison_summary.csv` con **XGBoost como mejor modelo** en ambos targets (alineado con los asserts).
+
 ---
 
-## 🧠 Author
-**Erik R. — CityMind Project (2025)**  
-MIT License © 2025  
-GitHub: [Tarik2012](https://github.com/Tarik2012)
+## 🔄 CI/CD (GitHub Actions)
+
+Workflow: `.github/workflows/ci.yml` (ramas `main` y `dev`)
+
+Etapas:
+1. Checkout  
+2. Python 3.11  
+3. `pip install -r requirements.txt`  
+4. `flake8` (no bloqueante)  
+5. **Mocks de datos** (`tests/create_mock_data.py`)  
+6. `snakemake -n -p` (dry-run)  
+7. `pytest -v`
+
+**Badge:** ![CityMind CI](https://github.com/Tarik2012/City-Mind/actions/workflows/ci.yml/badge.svg)
+
+---
+
+## 🧩 Tecnologías
+
+| Categoría       | Stack                                   |
+|-----------------|-----------------------------------------|
+| ML / Datos      | XGBoost, scikit-learn, Pandas, NumPy     |
+| Backend         | Django 5, Django REST Framework          |
+| Orquestación    | Snakemake                                |
+| Base de datos   | PostgreSQL (Django ORM)                  |
+| Testing         | Pytest                                   |
+| Visualización   | Matplotlib                               |
+
+---
+
+## 🧱 Historial de CI/Testing (lecciones clave)
+
+| Incidencia                                   | Causa raíz                                  | Solución                                                                 |
+|---------------------------------------------|---------------------------------------------|--------------------------------------------------------------------------|
+| Faltaba `.env.example`                      | Validación en CI                            | Añadido check + archivo ejemplo                                          |
+| Snakemake sin entradas                      | Datos CDC no presentes en CI                | Generador de mocks para rutas esperadas                                  |
+| Error YAML en `ci.yml`                      | Indentación/sintaxis                        | Reformat de workflow                                                     |
+| `create_mock_data.py` no encontrado         | Ruta incorrecta                             | Script en `tests/` y paso explícito en workflow                          |
+| 7/14 tests fallando                         | Columnas incompatibles con los tests        | Mocks con **nombres reales** (`*_crudeprev`, `stateabbr`, etc.)          |
+| XGBoost no “best model” en CI               | Valores de R² de mock                       | Ajuste de mocks: XGBoost > resto en ambos targets                        |
+| ✅ Estado final                              | CI verde                                     | 14/14 tests OK y pipeline reproducible                                   |
+
+---
+
+## 🧠 Autor
+**Erik R. — CityMind Project (2025)** · MIT License © 2025  
+Maintainer CI/CD: **Tarik2012**

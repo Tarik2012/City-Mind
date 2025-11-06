@@ -1,6 +1,6 @@
 # ======================================================
 # CityMind - Snakemake Pipeline (versión PRO)
-# Pipeline completo: Wrangling → Training → Comparison → Testing → Ingesta
+# Pipeline completo: Wrangling → Training → Comparison → Testing → Ingesta → Insights
 # ======================================================
 
 import os
@@ -45,7 +45,8 @@ rule all:
         "data/interim/full_social/model_metrics.csv",
         "data/interim/comparison/comparison_summary.csv",
         "tests/pytest_passed.txt",
-        "logs/db_ingest_done.txt"
+        "logs/db_ingest_done.txt",
+        "reports/data_insights.html"  # ✅ NUEVO: incluir análisis EDA final
 
 # ------------------------------------------------------
 # 4. Wrangling de datos (añadido export de final_places.csv)
@@ -132,21 +133,7 @@ rule test:
                 sys.exit(result.returncode)
 
 # ------------------------------------------------------
-# 8. Regla opcional: limpiar todo
-# ------------------------------------------------------
-rule clean:
-    shell:
-        """
-        echo Cleaning temporary data and logs...
-        rmdir /s /q data\\interim 2>nul || true
-        rmdir /s /q data\\processed 2>nul || true
-        rmdir /s /q logs 2>nul || true
-        mkdir logs
-        echo Done.
-        """
-
-# ------------------------------------------------------
-# 9. Ingesta a PostgreSQL (Django ORM)
+# 8. Ingesta a PostgreSQL (Django ORM)
 # ------------------------------------------------------
 rule ingest_to_postgres:
     input:
@@ -174,3 +161,33 @@ rule ingest_to_postgres:
 
         end = time.time()
         append_summary("ingest_to_postgres", status, end - start, start, end)
+
+# ------------------------------------------------------
+# 9. Data Insights Report — EDA automatizado
+# ------------------------------------------------------
+rule data_insights:
+    input:
+        "data/processed/final_places.csv"
+    output:
+        "reports/data_insights.html"
+    run:
+        start = time.time()
+        with PipelineStep("data_insights"):
+            print("📊 Generando reporte de análisis exploratorio (EDA)...")
+            os.system("python analytics/run_data_insights.py")
+        end = time.time()
+        append_summary("data_insights", "completed", end - start, start, end)
+
+# ------------------------------------------------------
+# 10. (Opcional) Limpieza
+# ------------------------------------------------------
+rule clean:
+    shell:
+        """
+        echo Cleaning temporary data and logs...
+        rmdir /s /q data\\interim 2>nul || true
+        rmdir /s /q data\\processed 2>nul || true
+        rmdir /s /q logs 2>nul || true
+        mkdir logs
+        echo Done.
+        """

@@ -1,0 +1,3 @@
+timestamp,step_name,status,duration_sec,message
+2025-11-06 10:55:11,data_insights,SUCCESS,6.91,
+data_insights,completed,6.91,1762422904.6399481,1762422911.550601
