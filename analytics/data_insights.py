@@ -3,16 +3,22 @@ CityMind — Data Insights Module (for Django Dashboard)
 ------------------------------------------------------
 Genera métricas y gráficos interactivos directamente desde el dataset procesado.
 Adaptado a la estructura del pipeline CityMind (usa countyname, stateabbr, countyfips).
+Compatible tanto dentro de Django como en entornos CI sin settings.
 """
 
 import pandas as pd
 import plotly.express as px
 from pathlib import Path
-from django.conf import settings
 
-
-# Ruta absoluta al dataset generado por Snakemake
-DATA_PATH = Path(settings.BASE_DIR) / "data" / "processed" / "final_places.csv"
+# =========================================================
+# 🧩 Configuración segura de la ruta del dataset
+# =========================================================
+try:
+    from django.conf import settings
+    DATA_PATH = Path(settings.BASE_DIR) / "data" / "processed" / "final_places.csv"
+except Exception:
+    # Modo standalone (por ejemplo, en GitHub Actions)
+    DATA_PATH = Path("data/processed/final_places.csv")
 
 
 # =========================================================
