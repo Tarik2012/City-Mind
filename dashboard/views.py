@@ -6,6 +6,7 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 from plotly.offline import plot
+from pathlib import Path
 
 
 # ======================================================
@@ -80,9 +81,11 @@ from analytics.data_insights import generate_all_insights
 def dashboard_view(request):
     try:
         insights = generate_all_insights()
+        print("✅ INSIGHTS LOADED:", insights["summary"])  # ← Log de control
         no_data = False
-    except Exception:
-        insights = None
+    except Exception as e:
+        print("❌ ERROR LOADING INSIGHTS:", e)
+        insights = {}
         no_data = True
 
     context = {"insights": insights, "no_data": no_data}
