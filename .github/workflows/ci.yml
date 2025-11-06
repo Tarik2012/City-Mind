@@ -45,3 +45,17 @@ jobs:
       - name: Ejecutar tests con Pytest
         run: |
           pytest -v
+
+      - name: Verificar módulo de insights (sanity check)
+        run: |
+          python - <<'PYCODE'
+          from analytics.data_insights import generate_all_insights
+          try:
+              insights = generate_all_insights()
+              summary = insights.get("summary", {})
+              print("::notice::✅ Insights generados correctamente:")
+              print(summary)
+          except Exception as e:
+              print("::error::❌ Error generando insights:", e)
+              exit(1)
+          PYCODE
